@@ -6,6 +6,22 @@ from os.path import join
 from utils import matrix_type_from_magic
 
 
+class SmallNORBExample:
+
+    def __init__(self):
+        self.image_1   = None
+        self.image_2   = None
+        self.category  = None
+        self.instance  = None
+        self.elevation = None
+        self.azimuth   = None
+        self.lighting  = None
+
+    def show(self, axes):
+        axes[0].imshow(self.image_1, cmap='gray')
+        axes[1].imshow(self.image_2, cmap='gray')
+
+
 class SmallNORBDataset:
 
     def __init__(self, dataset_root):
@@ -17,6 +33,7 @@ class SmallNORBDataset:
         dataset_root: str
             Path to directory where small NORB archives have been extracted.
         """
+        self.num_examples = 24300
         self.dataset_root = dataset_root
 
         # List small NORB files and store path for each file
@@ -27,16 +44,28 @@ class SmallNORBDataset:
         test_files = {key: join(self.dataset_root,
                                 'smallnorb-5x01235x9x18x6x2x96x96-testing-{}.mat'.format(key))
                       for key in ['cat', 'info', 'dat']}
-        self.dataset_files = {'train': train_files, 'test': test_files}
 
-        self.train_dat = self._parse_NORB_dat_file(self.dataset_files['train']['dat'])
-        self.test_dat  = self._parse_NORB_dat_file(self.dataset_files['test']['dat'])
+        self.dataset_files = {'train': train_files,
+                              'test':  test_files}
 
-        self.train_cat = self._parse_NORB_cat_file(self.dataset_files['train']['cat'])
-        self.test_cat = self._parse_NORB_cat_file(self.dataset_files['test']['cat'])
+        self.data = {'train': [SmallNORBExample() for _ in range(self.num_examples)],
+                     'test':  [SmallNORBExample() for _ in range(self.num_examples)]}
 
-        self.train_info = self._parse_NORB_info_file(self.dataset_files['train']['info'])
-        self.test_info  = self._parse_NORB_info_file(self.dataset_files['test']['info'])
+        for data_split in ['train']:                  # todo , 'test']:
+            self._fill_data_structures(data_split)
+
+    def _fill_data_structures(self, dataset_split):
+        dat_data  = self._parse_NORB_dat_file(self.dataset_files[dataset_split]['dat'])
+        cat_data  = self._parse_NORB_cat_file(self.dataset_files[dataset_split]['cat'])
+        info_data = self._parse_NORB_info_file(self.dataset_files[dataset_split]['info'])
+        for i in range(self.num_examples):
+            self.data[dataset_split][i].image_1   = dat_data[2 * i]
+            self.data[dataset_split][i].image_2   = dat_data[2 * i + 1]
+            self.data[dataset_split][i].category  = cat_data[i]
+            self.data[dataset_split][i].instance  = info_data[i][0]
+            self.data[dataset_split][i].elevation = info_data[i][1]
+            self.data[dataset_split][i].azimuth   = info_data[i][2]
+            self.data[dataset_split][i].lighting  = info_data[i][3]
 
     @staticmethod
     def _parse_small_NORB_header(file_pointer):
@@ -55,14 +84,12 @@ class SmallNORBDataset:
         """
         # Read magic number
         magic = struct.unpack('<BBBB', file_pointer.read(4))  # '<' is little endian)
-        print('Magic number: {} --> {}'.format(magic, matrix_type_from_magic(magic)))
 
         # Read dimensions
         dimensions = []
         num_dims, = struct.unpack('<i', file_pointer.read(4))  # '<' is little endian)
         for _ in range(num_dims):
             dimensions.extend(struct.unpack('<i', file_pointer.read(4)))
-        print('Dimensions: {}'.format(dimensions))
 
         file_header_data = {'magic_number': magic,
                             'matrix_type': matrix_type_from_magic(magic),
@@ -177,6 +204,8 @@ if __name__ == '__main__':
     plt.ion()
 
     dataset = SmallNORBDataset(dataset_root='/media/minotauro/DATA/smallnorb/')
-    for image_example in dataset.train_dat:
-        plt.imshow(image_example, cmap='gray')
+    _, axes = plt.subplots(nrows=1, ncols=2)
+    for example in dataset.data['train']:
+        example.show(axes)
         plt.waitforbuttonpress()
+        plt.cla()
