@@ -40,7 +40,19 @@ class SmallNORBDataset:
 
     @staticmethod
     def _parse_small_NORB_header(file_pointer):
+        """
+        Parse header of small NORB binary file
+        
+        Parameters
+        ----------
+        file_pointer: BufferedReader
+            File pointer just opened in a small NORB binary file
 
+        Returns
+        -------
+        file_header_data: dict
+            Dictionary containing header information
+        """
         # Read magic number
         magic = struct.unpack('<BBBB', file_pointer.read(4))  # '<' is little endian)
         print('Magic number: {} --> {}'.format(magic, matrix_type_from_magic(magic)))
@@ -59,6 +71,19 @@ class SmallNORBDataset:
 
     @staticmethod
     def _parse_NORB_cat_file(file_path):
+        """
+        Parse small NORB category file
+        
+        Parameters
+        ----------
+        file_path: str
+            Path of the small NORB `*-cat.mat` file
+
+        Returns
+        -------
+        examples: ndarray
+            Ndarray of shape (24300,) containing the category of each example
+        """
         with open(file_path, mode='rb') as f:
             header = SmallNORBDataset._parse_small_NORB_header(f)
 
@@ -76,7 +101,20 @@ class SmallNORBDataset:
 
     @staticmethod
     def _parse_NORB_dat_file(file_path):
+        """
+        Parse small NORB data file
 
+        Parameters
+        ----------
+        file_path: str
+            Path of the small NORB `*-dat.mat` file
+
+        Returns
+        -------
+        examples: ndarray
+            Ndarray of shape (48600, 96, 96) containing images couples. Each image couple
+            is stored in position [i, :, :] and [i+1, :, :]
+        """
         with open(file_path, mode='rb') as f:
 
             header = SmallNORBDataset._parse_small_NORB_header(f)
@@ -97,7 +135,25 @@ class SmallNORBDataset:
 
     @staticmethod
     def _parse_NORB_info_file(file_path):
+        """
+        Parse small NORB information file
 
+        Parameters
+        ----------
+        file_path: str
+            Path of the small NORB `*-info.mat` file
+
+        Returns
+        -------
+        examples: ndarray
+            Ndarray of shape (24300,4) containing the additional info of each example.
+            
+             - column 1: the instance in the category (0 to 9)
+             - column 2: the elevation (0 to 8, which mean cameras are 30, 35,40,45,50,55,60,65,70 
+               degrees from the horizontal respectively)
+             - column 3: the azimuth (0,2,4,...,34, multiply by 10 to get the azimuth in degrees)
+             - column 4: the lighting condition (0 to 5)
+        """
         with open(file_path, mode='rb') as f:
 
             header = SmallNORBDataset._parse_small_NORB_header(f)
