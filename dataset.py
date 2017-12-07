@@ -29,8 +29,11 @@ class SmallNORBDataset:
                       for key in ['cat', 'info', 'dat']}
         self.dataset_files = {'train': train_files, 'test': test_files}
 
-        self.train_dat = self._parse_NORB_data_file(self.dataset_files['train']['dat'])
-        self.test_dat  = self._parse_NORB_data_file(self.dataset_files['test']['dat'])
+        self.train_dat = self._parse_NORB_dat_file(self.dataset_files['train']['dat'])
+        self.test_dat  = self._parse_NORB_dat_file(self.dataset_files['test']['dat'])
+
+        self.train_cat = self._parse_NORB_cat_file(self.dataset_files['train']['cat'])
+        self.test_cat = self._parse_NORB_cat_file(self.dataset_files['test']['cat'])
 
         self.train_info = self._parse_NORB_info_file(self.dataset_files['train']['info'])
         self.test_info  = self._parse_NORB_info_file(self.dataset_files['test']['info'])
@@ -55,7 +58,24 @@ class SmallNORBDataset:
         return file_header_data
 
     @staticmethod
-    def _parse_NORB_data_file(file_path):
+    def _parse_NORB_cat_file(file_path):
+        with open(file_path, mode='rb') as f:
+            header = SmallNORBDataset._parse_small_NORB_header(f)
+
+            num_examples, = header['dimensions']
+
+            struct.unpack('<BBBB', f.read(4))  # ignore this integer
+            struct.unpack('<BBBB', f.read(4))  # ignore this integer
+
+            examples = np.zeros(shape=num_examples, dtype=np.int32)
+            for i in tqdm(range(num_examples), desc='Loading categories...'):
+                category, = struct.unpack('<i', f.read(4))
+                examples[i] = category
+
+            return examples
+
+    @staticmethod
+    def _parse_NORB_dat_file(file_path):
 
         with open(file_path, mode='rb') as f:
 
@@ -101,6 +121,6 @@ if __name__ == '__main__':
     plt.ion()
 
     dataset = SmallNORBDataset(dataset_root='/media/minotauro/DATA/smallnorb/')
-    for image in dataset.test_dat:
-        plt.imshow(image, cmap='gray')
+    for image_example in dataset.train_dat:
+        plt.imshow(image_example, cmap='gray')
         plt.waitforbuttonpress()
