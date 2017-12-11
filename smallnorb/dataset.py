@@ -67,6 +67,18 @@ class SmallNORBDataset:
         self.initialized = True
 
     def explore_random_examples(self, dataset_split):
+        """
+        Visualize random examples for dataset exploration purposes
+        
+        Parameters
+        ----------
+        dataset_split: str
+            Dataset split, can be either 'train' or 'test'
+
+        Returns
+        -------
+        None
+        """
         if self.initialized:
             subplots = plt.subplots(nrows=1, ncols=2)
             for i in np.random.permutation(self.num_examples):
