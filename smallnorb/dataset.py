@@ -18,7 +18,6 @@ class SmallNORBExample:
         self.lighting  = None
 
     def __lt__(self, other):
-        # return self.category < other.category
         return self.category < other.category or \
                 (self.category == other.category and self.instance < other.instance)
 
