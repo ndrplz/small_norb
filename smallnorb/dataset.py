@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from os.path import join
+from itertools import groupby
 
 
 class SmallNORBExample:
@@ -16,6 +17,11 @@ class SmallNORBExample:
         self.azimuth   = None
         self.lighting  = None
 
+    def __lt__(self, other):
+        # return self.category < other.category
+        return self.category < other.category or \
+                (self.category == other.category and self.instance < other.instance)
+
     def show(self, subplots):
         fig, axes = subplots
         fig.suptitle(
@@ -27,6 +33,12 @@ class SmallNORBExample:
 
 class SmallNORBDataset:
 
+    # Number of examples in both train and test set
+    n_examples = 24300
+
+    # Categories present in small NORB dataset
+    categories = ['animal', 'human', 'airplane', 'truck', 'car']
+
     def __init__(self, dataset_root):
         """
         Initialize small NORB dataset wrapper
@@ -36,7 +48,7 @@ class SmallNORBDataset:
         dataset_root: str
             Path to directory where small NORB archives have been extracted.
         """
-        self.num_examples = 24300
+
         self.dataset_root = dataset_root
         self.initialized  = False
 
@@ -56,8 +68,8 @@ class SmallNORBDataset:
 
         # Initialize both train and test data structures
         self.data = {
-            'train': [SmallNORBExample() for _ in range(self.num_examples)],
-            'test':  [SmallNORBExample() for _ in range(self.num_examples)]
+            'train': [SmallNORBExample() for _ in range(SmallNORBDataset.n_examples)],
+            'test':  [SmallNORBExample() for _ in range(SmallNORBDataset.n_examples)]
         }
 
         # Fill data structures parsing dataset binary files
@@ -81,10 +93,35 @@ class SmallNORBDataset:
         """
         if self.initialized:
             subplots = plt.subplots(nrows=1, ncols=2)
-            for i in np.random.permutation(self.num_examples):
+            for i in np.random.permutation(SmallNORBDataset.n_examples):
                 self.data[dataset_split][i].show(subplots)
                 plt.waitforbuttonpress()
                 plt.cla()
+
+    def group_dataset_by_category_and_instance(self, dataset_split):
+        """
+        Group small NORB dataset for (category, instance) key
+        
+        Parameters
+        ----------
+        dataset_split: str
+            Dataset split, can be either 'train' or 'test'
+
+        Returns
+        -------
+        groups: list
+            List of 25 groups of 972 elements each. All examples of each group are
+            from the same category and instance
+        """
+        if dataset_split not in ['train', 'test']:
+            raise ValueError('Dataset split "{}" not allowed.'.format(dataset_split))
+
+        groups = []
+        for key, group in groupby(iterable=sorted(self.data[dataset_split]),
+                                  key=lambda x: (x.category, x.instance)):
+            groups.append(list(group))
+
+        return groups
 
     def _fill_data_structures(self, dataset_split):
         """
