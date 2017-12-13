@@ -9,8 +9,8 @@ from itertools import groupby
 class SmallNORBExample:
 
     def __init__(self):
-        self.image_1   = None
-        self.image_2   = None
+        self.image_lt  = None
+        self.image_rt  = None
         self.category  = None
         self.instance  = None
         self.elevation = None
@@ -26,8 +26,8 @@ class SmallNORBExample:
         fig.suptitle(
             'Category: {:02d} - Instance: {:02d} - Elevation: {:02d} - Azimuth: {:02d} - Lighting: {:02d}'.format(
                 self.category, self.instance, self.elevation, self.azimuth, self.lighting))
-        axes[0].imshow(self.image_1, cmap='gray')
-        axes[1].imshow(self.image_2, cmap='gray')
+        axes[0].imshow(self.image_lt, cmap='gray')
+        axes[1].imshow(self.image_rt, cmap='gray')
 
 
 class SmallNORBDataset:
@@ -143,8 +143,8 @@ class SmallNORBDataset:
         cat_data  = self._parse_NORB_cat_file(self.dataset_files[dataset_split]['cat'])
         info_data = self._parse_NORB_info_file(self.dataset_files[dataset_split]['info'])
         for i, small_norb_example in enumerate(self.data[dataset_split]):
-            small_norb_example.image_1   = dat_data[2 * i]
-            small_norb_example.image_2   = dat_data[2 * i + 1]
+            small_norb_example.image_lt   = dat_data[2 * i]
+            small_norb_example.image_rt   = dat_data[2 * i + 1]
             small_norb_example.category  = cat_data[i]
             small_norb_example.instance  = info_data[i][0]
             small_norb_example.elevation = info_data[i][1]
