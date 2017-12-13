@@ -29,6 +29,10 @@ class SmallNORBExample:
         axes[0].imshow(self.image_lt, cmap='gray')
         axes[1].imshow(self.image_rt, cmap='gray')
 
+    @property
+    def pose(self):
+        return np.array([self.elevation, self.azimuth, self.lighting], dtype=np.float32)
+
 
 class SmallNORBDataset:
 
