@@ -105,6 +105,12 @@ class SmallNORBDataset:
 
     def export_to_jpg(self):
         """
+        Export files into jpg
+
+        Parameters:
+        -----------
+        None
+
         """
         if self.initialized:
             for split_name in ['train','test']:
