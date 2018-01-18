@@ -1,6 +1,7 @@
 import struct
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.misc
 from tqdm import tqdm
 from os.path import join
 from itertools import groupby
@@ -28,6 +29,7 @@ class SmallNORBExample:
                 self.category, self.instance, self.elevation, self.azimuth, self.lighting))
         axes[0].imshow(self.image_lt, cmap='gray')
         axes[1].imshow(self.image_rt, cmap='gray')
+    
 
     @property
     def pose(self):
@@ -101,6 +103,15 @@ class SmallNORBDataset:
                 plt.waitforbuttonpress()
                 plt.cla()
 
+    def export_to_jpg(self):
+        """
+        """
+        if self.initialized:
+            for split_name in ['train','test']:
+                for i in range(len(self.data[split_name])):
+                    scipy.misc.imsave("{}/{}/{}lt.jpg".format(split_name,SmallNORBDataset.categories[self.data[split_name][i].category],i), self.data[split_name][i].image_lt)
+                    scipy.misc.imsave("{}/{}/{}rt.jpg".format(split_name,SmallNORBDataset.categories[self.data[split_name][i].category],i), self.data[split_name][i].image_rt)
+    
     def group_dataset_by_category_and_instance(self, dataset_split):
         """
         Group small NORB dataset for (category, instance) key
