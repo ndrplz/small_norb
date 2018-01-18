@@ -1,8 +1,11 @@
 import struct
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.misc
 from tqdm import tqdm
+from os import makedirs
 from os.path import join
+from os.path import exists
 from itertools import groupby
 
 
@@ -101,6 +104,39 @@ class SmallNORBDataset:
                 plt.waitforbuttonpress()
                 plt.cla()
 
+    def export_to_jpg(self, export_dir):
+        """
+        Export all dataset images to `export_dir` directory
+        
+        Parameters
+        ----------
+        export_dir: str
+            Path to export directory (which is created if nonexistent)
+            
+        Returns
+        -------
+        None
+        """
+        if self.initialized:
+            print('Exporting images to {}...'.format(export_dir), end='', flush=True)
+            for split_name in ['train', 'test']:
+
+                split_dir = join(export_dir, split_name)
+                if not exists(split_dir):
+                    makedirs(split_dir)
+
+                for i, norb_example in enumerate(self.data[split_name]):
+
+                    category = SmallNORBDataset.categories[norb_example.category]
+                    instance = norb_example.instance
+
+                    image_lt_path = join(split_dir, '{:06d}_{}_{:02d}_lt.jpg'.format(i, category, instance))
+                    image_rt_path = join(split_dir, '{:06d}_{}_{:02d}_rt.jpg'.format(i, category, instance))
+
+                    scipy.misc.imsave(image_lt_path, norb_example.image_lt)
+                    scipy.misc.imsave(image_rt_path, norb_example.image_rt)
+            print('Done.')
+    
     def group_dataset_by_category_and_instance(self, dataset_split):
         """
         Group small NORB dataset for (category, instance) key
