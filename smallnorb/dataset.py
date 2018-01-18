@@ -105,7 +105,7 @@ class SmallNORBDataset:
 
     def export_to_jpg(self):
         """
-        Export files into jpg
+        Export image pairs into seperate jpgs denoted as lt and rt
 
         Parameters:
         -----------
