@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.misc
 from tqdm import tqdm
+from os import makedirs
 from os.path import join
+from os.path import exists
 from itertools import groupby
 
 
@@ -29,7 +31,6 @@ class SmallNORBExample:
                 self.category, self.instance, self.elevation, self.azimuth, self.lighting))
         axes[0].imshow(self.image_lt, cmap='gray')
         axes[1].imshow(self.image_rt, cmap='gray')
-    
 
     @property
     def pose(self):
@@ -103,20 +104,38 @@ class SmallNORBDataset:
                 plt.waitforbuttonpress()
                 plt.cla()
 
-    def export_to_jpg(self):
+    def export_to_jpg(self, export_dir):
         """
-        Export image pairs into seperate jpgs denoted as lt and rt
-
-        Parameters:
-        -----------
+        Export all dataset images to `export_dir` directory
+        
+        Parameters
+        ----------
+        export_dir: str
+            Path to export directory (which is created if nonexistent)
+            
+        Returns
+        -------
         None
-
         """
         if self.initialized:
-            for split_name in ['train','test']:
-                for i in range(len(self.data[split_name])):
-                    scipy.misc.imsave("{}/{}/{}lt.jpg".format(split_name,SmallNORBDataset.categories[self.data[split_name][i].category],i), self.data[split_name][i].image_lt)
-                    scipy.misc.imsave("{}/{}/{}rt.jpg".format(split_name,SmallNORBDataset.categories[self.data[split_name][i].category],i), self.data[split_name][i].image_rt)
+            print('Exporting images to {}...'.format(export_dir), end='', flush=True)
+            for split_name in ['train', 'test']:
+
+                split_dir = join(export_dir, split_name)
+                if not exists(split_dir):
+                    makedirs(split_dir)
+
+                for i, norb_example in enumerate(self.data[split_name]):
+
+                    category = SmallNORBDataset.categories[norb_example.category]
+                    instance = norb_example.instance
+
+                    image_lt_path = join(split_dir, '{:06d}_{}_{:02d}_lt.jpg'.format(i, category, instance))
+                    image_rt_path = join(split_dir, '{:06d}_{}_{:02d}_rt.jpg'.format(i, category, instance))
+
+                    scipy.misc.imsave(image_lt_path, norb_example.image_lt)
+                    scipy.misc.imsave(image_rt_path, norb_example.image_rt)
+            print('Done.')
     
     def group_dataset_by_category_and_instance(self, dataset_split):
         """
