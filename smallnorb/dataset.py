@@ -1,12 +1,13 @@
 import struct
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.misc
-from tqdm import tqdm
-from os import makedirs
-from os.path import join
-from os.path import exists
 from itertools import groupby
+from os import makedirs
+from os.path import exists
+from os.path import join
+
+import imageio
+import matplotlib.pyplot as plt
+import numpy as np
+from tqdm import tqdm
 
 
 class SmallNORBExample:
@@ -133,10 +134,10 @@ class SmallNORBDataset:
                     image_lt_path = join(split_dir, '{:06d}_{}_{:02d}_lt.jpg'.format(i, category, instance))
                     image_rt_path = join(split_dir, '{:06d}_{}_{:02d}_rt.jpg'.format(i, category, instance))
 
-                    scipy.misc.imsave(image_lt_path, norb_example.image_lt)
-                    scipy.misc.imsave(image_rt_path, norb_example.image_rt)
+                    imageio.imwrite(image_lt_path, norb_example.image_lt)
+                    imageio.imwrite(image_rt_path, norb_example.image_rt)
             print('Done.')
-    
+
     def group_dataset_by_category_and_instance(self, dataset_split):
         """
         Group small NORB dataset for (category, instance) key
