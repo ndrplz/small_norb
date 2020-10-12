@@ -119,14 +119,15 @@ class SmallNORBDataset:
         None
         """
         if self.initialized:
-            print('Exporting images to {}...'.format(export_dir), end='', flush=True)
             for split_name in ['train', 'test']:
 
                 split_dir = join(export_dir, split_name)
                 if not exists(split_dir):
                     makedirs(split_dir)
 
-                for i, norb_example in enumerate(self.data[split_name]):
+                for i, norb_example in tqdm(iterable=enumerate(self.data[split_name]),
+                                            total=len(self.data[split_name]),
+                                            desc='Exporting {} images to {}'.format(split_name, export_dir)):
 
                     category = SmallNORBDataset.categories[norb_example.category]
                     instance = norb_example.instance
@@ -136,7 +137,6 @@ class SmallNORBDataset:
 
                     imageio.imwrite(image_lt_path, norb_example.image_lt)
                     imageio.imwrite(image_rt_path, norb_example.image_rt)
-            print('Done.')
 
     def group_dataset_by_category_and_instance(self, dataset_split):
         """
