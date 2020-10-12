@@ -4,6 +4,8 @@
 
 Since I saw no plug-and-play python wrappers around the [small NORB dataset](https://cs.nyu.edu/~ylclab/data/norb-v1.0-small/) (which is distributed in *binary matrix* file format) I made this simple class to encapsule the binary data parsing.
 
+To install requirements: `pip install -r requirements.txt`
+
 ## Small NORB Dataset
 The [small NORB dataset](https://cs.nyu.edu/~ylclab/data/norb-v1.0-small/) contains images of 50 toys belonging to 5 generic categories: four-legged animals, human figures, airplanes, trucks, and cars. The objects were imaged by two cameras under 6 lighting conditions, 9 elevations (30 to 70 degrees every 5 degrees), and 18 azimuths (0 to 340 every 20 degrees). The training set is composed of 5 instances of each category (instances 4, 6, 7, 8 and 9), and the test set of the remaining 5 instances (instances 0, 1, 2, 3, and 5). The dataset features 24300 train and 24300 test examples.
 
